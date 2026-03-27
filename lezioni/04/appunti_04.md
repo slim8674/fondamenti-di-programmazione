@@ -2,47 +2,20 @@
 
 ## Introduzione
 
-In questa lezione approfondiamo alcuni aspetti molto importanti del lavoro con i contenitori e con gli oggetti in Python:
+In questa lezione riprendiamo il lavoro sui contenitori iniziato nella lezione precedente e approfondiamo alcuni aspetti molto importanti:
 
 - iterazione tramite indice
-- uso di `len()` e `range()` insieme
-- funzione `enumerate()`
-- modifica di una lista durante un ciclo
-- verità e falsità dei contenitori
-- oggetti e metodi
-- distinzione tra funzioni generali e metodi degli oggetti
+- uso di `enumerate()`
+- problemi causati dalla modifica di una lista durante un ciclo
+- uso dei contenitori in contesti booleani
+- introduzione agli oggetti e ai metodi
+- principali operazioni su liste, tuple, insiemi e dizionari
 
-Questi concetti servono a scrivere codice più corretto e più leggibile. In particolare, aiutano a capire meglio come scorrere i dati, come evitare errori frequenti e come usare correttamente le operazioni messe a disposizione dai vari tipi di oggetto.
+Questa lezione è importante perché ci porta da un uso elementare dei contenitori a un uso più consapevole e più vicino alla pratica reale della programmazione in Python. La bozza originale insiste proprio su questi punti: scorrere correttamente i dati, capire quando un metodo modifica davvero una struttura dati e distinguere bene i comportamenti dei diversi contenitori. fileciteturn9file0
 
-## Iterare su un contenitore
+## Iterare un contenitore attraverso l'indice
 
-Nelle lezioni precedenti abbiamo visto che un contenitore può essere percorso con un ciclo `for`.
-
-Esempio:
-
-```python
-lista_new = [2, 5, 7, 'fls']
-
-for elemento in lista_new:
-    print(elemento)
-```
-
-Output:
-
-```python
-2
-5
-7
-fls
-```
-
-Questo approccio è molto comodo quando interessa il valore degli elementi.
-
-## Iterare tramite indice
-
-A volte però non basta conoscere il valore dell’elemento: può essere utile conoscere anche la sua posizione.
-
-In quel caso possiamo generare gli indici con `range(len(contenitore))`.
+Nelle lezioni precedenti abbiamo già visto che un contenitore può essere attraversato con un ciclo `for`. Un passo ulteriore consiste nel percorrere non direttamente gli elementi, ma i loro **indici**.
 
 Esempio:
 
@@ -63,50 +36,17 @@ Output:
 3 fls
 ```
 
-Qui succedono due cose:
+Qui:
 
-- `len(lista_new)` restituisce il numero di elementi della lista
-- `range(len(lista_new))` genera gli indici validi: `0`, `1`, `2`, `3`
+- `len(lista_new)` restituisce la lunghezza della lista;
+- `range(len(lista_new))` genera gli indici validi della lista;
+- `lista_new[indice]` permette di leggere l'elemento nella posizione corrente.
 
-Questo schema è utile quando:
+Questo approccio è utile quando non basta conoscere il valore di un elemento, ma serve anche sapere **in quale posizione si trova**.
 
-- serve leggere la posizione di un elemento
-- serve accedere a più contenitori in parallelo tramite lo stesso indice
-- serve modificare elementi in una certa posizione
+## `enumerate()`
 
-## Quando usare l’indice e quando no
-
-In generale:
-
-- se ti serve solo il valore, è meglio scrivere `for elemento in contenitore`
-- se ti servono posizione e valore, puoi usare `enumerate()`
-- se devi lavorare proprio con le posizioni numeriche, puoi usare `range(len(...))`
-
-Usare l’indice senza necessità rende spesso il codice meno leggibile.
-
-## La funzione `enumerate()`
-
-Python offre una funzione molto comoda per ottenere insieme indice ed elemento: `enumerate()`.
-
-Esempio:
-
-```python
-lista_new = [2, 5, 7, 'fls']
-
-for indice, elemento in enumerate(lista_new):
-    print(indice, elemento)
-```
-
-Output:
-
-```python
-0 2
-1 5
-2 7
-3 fls
-```
-
-Possiamo anche osservare il risultato trasformandolo in lista:
+Un modo più comodo per ottenere contemporaneamente indice ed elemento è usare `enumerate()`.
 
 ```python
 lista_new = [2, 5, 7, 'fls']
@@ -119,41 +59,25 @@ Output:
 [(0, 2), (1, 5), (2, 7), (3, 'fls')]
 ```
 
-Questa funzione produce coppie della forma:
+Nella bozza si dice che `enumerate` genera una lista di coppie indice-elemento. L'idea didattica è giusta, ma tecnicamente è meglio dire che `enumerate()` restituisce un **oggetto iterabile**; se vogliamo vedere tutte le coppie insieme, possiamo convertirlo con `list(...)`. fileciteturn9file0
+
+Forma tipica d'uso:
 
 ```python
-(indice, elemento)
+for indice, elemento in enumerate(lista_new):
+    print(indice, elemento)
 ```
 
-Per questo `enumerate()` è spesso preferibile a `range(len(...))` quando vogliamo sia la posizione sia il valore corrente.
+Questo è spesso preferibile a `range(len(...))` quando ci servono sia la posizione sia il valore, perché è più leggibile.
 
-## Esempio di confronto tra due stili
+## Attenzione: modificare una lista durante l'iterazione
 
-### Stile con indice
+Uno dei punti più importanti della lezione riguarda il fatto che **non bisogna modificare con leggerezza una lista mentre la si sta scorrendo con un ciclo basato sugli indici**. La bozza fa notare due effetti distinti:
 
-```python
-nomi = ['Anna', 'Luca', 'Marco']
+- il ciclo continua a fare riferimento alla lunghezza iniziale della lista;
+- eliminando un elemento, gli indici successivi si spostano e alcuni valori possono essere saltati. fileciteturn9file0
 
-for i in range(len(nomi)):
-    print(i, nomi[i])
-```
-
-### Stile con `enumerate()`
-
-```python
-nomi = ['Anna', 'Luca', 'Marco']
-
-for i, nome in enumerate(nomi):
-    print(i, nome)
-```
-
-I due codici producono lo stesso effetto, ma il secondo è spesso più chiaro.
-
-## Modificare una lista durante un ciclo
-
-Un errore molto frequente consiste nel modificare una lista mentre la si sta scorrendo.
-
-Esempio problematico:
+Esempio:
 
 ```python
 lista_interi = [0, 11, 22, 33, 44, 55, 66, 77, 88]
@@ -165,176 +89,74 @@ for i in range(len(lista_interi)):
         print('ho eliminato il 33 dalla lista e ho saltato il 44')
 ```
 
-Questo codice è pericoloso perché:
-
-- `range(len(lista_interi))` è stato costruito usando la lunghezza iniziale della lista
-- dopo `del lista_interi[i]` la lista diventa più corta
-- gli indici successivi cambiano
-- l’ultimo indice prodotto dal ciclo può non essere più valido
-
-Il risultato tipico è un errore del tipo:
+Output fino all'errore:
 
 ```python
+0
+11
+22
+33
+ho eliminato il 33 dalla lista e ho saltato il 44
+55
+66
+77
+88
 IndexError: list index out of range
 ```
 
-Inoltre, eliminando un elemento, gli elementi successivi scorrono verso sinistra e si rischia di saltarne qualcuno.
+### Perché succede
 
-## Perché si salta un elemento
+All'inizio il ciclo viene impostato su una lista di 9 elementi, quindi i valori di `i` andranno da `0` a `8`.
 
-Supponiamo di partire da:
+Quando eliminiamo `lista_interi[3]`, la lista diventa:
 
 ```python
-[0, 11, 22, 33, 44, 55]
+[0, 11, 22, 44, 55, 66, 77, 88]
 ```
 
-Se eliminiamo `33`, la lista diventa:
+A questo punto:
+
+- `44` si sposta all'indice `3`;
+- però il ciclo passa all'indice `4`;
+- quindi `44` viene saltato;
+- alla fine il ciclo tenterà comunque di accedere a un indice che non esiste più nella lista accorciata.
+
+### Strategie più sicure
+
+Come suggerisce la bozza, due strategie corrette sono:
+
+- scorrere la lista **al contrario**;
+- costruire una **nuova lista** contenente solo gli elementi che vogliamo mantenere. fileciteturn9file0
+
+Esempio con nuova lista:
+
+```python
+numeri = [0, 11, 22, 33, 44, 55]
+nuova = []
+
+for x in numeri:
+    if x != 33:
+        nuova.append(x)
+
+print(nuova)
+```
+
+Output:
 
 ```python
 [0, 11, 22, 44, 55]
 ```
 
-L’elemento `44` prende il posto che prima era di `33`.
-Se il ciclo passa subito all’indice successivo, `44` può non essere elaborato nel modo previsto.
+## I contenitori come valori booleani
 
-## Strategie più sicure
+In Python i contenitori possono essere usati direttamente in un `if`.
 
-Quando bisogna eliminare elementi durante una scansione, conviene usare strategie più sicure.
+Regola generale:
 
-### 1. Creare una nuova lista
+- un contenitore **vuoto** vale `False`;
+- un contenitore **non vuoto** vale `True`.
 
-È spesso la soluzione più semplice e leggibile.
-
-```python
-lista_interi = [0, 11, 22, 33, 44, 55, 66]
-nuova_lista = []
-
-for elemento in lista_interi:
-    if elemento != 33:
-        nuova_lista.append(elemento)
-
-print(nuova_lista)
-```
-
-Output:
-
-```python
-[0, 11, 22, 44, 55, 66]
-```
-
-### 2. Iterare al contrario
-
-Se si elimina per indice, può essere utile scorrere la lista dalla fine verso l’inizio.
-
-```python
-lista_interi = [0, 11, 22, 33, 44, 55, 66]
-
-for i in range(len(lista_interi) - 1, -1, -1):
-    if lista_interi[i] == 33:
-        del lista_interi[i]
-
-print(lista_interi)
-```
-
-Output:
-
-```python
-[0, 11, 22, 44, 55, 66]
-```
-
-Questo approccio è più sicuro perché eliminando un elemento in una posizione avanzata non si altera la parte ancora da visitare a sinistra.
-
-### 3. Usare una list comprehension
-
-Più avanti vedremo meglio questo strumento, ma già ora si può osservare questa forma:
-
-```python
-lista_interi = [0, 11, 22, 33, 44, 55, 66]
-lista_filtrata = [x for x in lista_interi if x != 33]
-print(lista_filtrata)
-```
-
-## Contenitori vuoti e valori booleani
-
-In Python molti valori possono essere interpretati come `True` o `False`.
-
-Per i contenitori vale una regola molto importante:
-
-- un contenitore vuoto è considerato `False`
-- un contenitore non vuoto è considerato `True`
-
-Esempi:
-
-```python
-print(bool([]))
-print(bool([1, 2]))
-print(bool(()))
-print(bool((3, 4)))
-print(bool({}))
-print(bool({'a': 1}))
-print(bool(set()))
-print(bool({1, 2}))
-```
-
-Output:
-
-```python
-False
-True
-False
-True
-False
-True
-False
-True
-```
-
-## Attenzione a `{}` e `set()`
-
-Bisogna ricordare un dettaglio importante:
-
-```python
-{}
-```
-
-in Python rappresenta un **dizionario vuoto**, non un insieme vuoto.
-
-Per creare un insieme vuoto bisogna scrivere:
-
-```python
-set()
-```
-
-Quindi:
-
-```python
-bool({})
-```
-
-controlla un dizionario vuoto, mentre:
-
-```python
-bool(set())
-```
-
-controlla un insieme vuoto.
-
-## Controllare se un contenitore è vuoto
-
-È possibile controllare se un contenitore contiene almeno un elemento in due modi.
-
-### Forma esplicita con `len()`
-
-```python
-S = [20.3]
-
-if len(S) > 0:
-    print(S, 'contiene almeno un elemento')
-else:
-    print(S, 'non contiene elementi')
-```
-
-### Forma più pythonica
+Esempio:
 
 ```python
 S = [20.3]
@@ -345,177 +167,535 @@ else:
     print(S, 'non contiene elementi')
 ```
 
-La seconda forma è generalmente preferita perché più breve e più naturale in Python.
-
-## Esempi con contenitori diversi
+Questo è equivalente a scrivere:
 
 ```python
-parole = []
-if parole:
-    print('la lista non è vuota')
-else:
-    print('la lista è vuota')
+if len(S) > 0:
 ```
 
-```python
-dati = {}
-if dati:
-    print('il dizionario contiene almeno una coppia chiave-valore')
-else:
-    print('il dizionario è vuoto')
-```
+ma di solito è più naturale scrivere direttamente `if S:`.
 
-```python
-insieme = set()
-if not insieme:
-    print('l\'insieme è vuoto')
-```
+### Attenzione a `{}` e `set()`
 
-## Oggetti in Python
-
-In Python tutto è basato su oggetti.
-
-Un **oggetto** può essere visto come un’entità che possiede:
-
-- dati
-- comportamento
-
-Per esempio:
-
-- una stringa è un oggetto
-- una lista è un oggetto
-- un numero è un oggetto
-- un dizionario è un oggetto
-
-Ogni oggetto appartiene a un certo tipo e mette a disposizione certe operazioni.
-
-## Metodi degli oggetti
-
-Le operazioni specifiche associate a un oggetto si chiamano **metodi**.
-
-La sintassi generale è:
-
-```python
-oggetto.nome_del_metodo(argomenti)
-```
+La bozza richiama giustamente un dettaglio importante: in Python `{}` rappresenta un **dizionario vuoto**, non un insieme vuoto. Per creare un insieme vuoto dobbiamo usare `set()`. fileciteturn9file0
 
 Esempi:
 
 ```python
-parola = 'ciao'
-print(parola.upper())
+print(bool({}))
+print(bool(set()))
 ```
+
+Output:
 
 ```python
-numeri = [10, 20]
-numeri.append(30)
-print(numeri)
+False
+False
 ```
+
+Entrambi sono vuoti, ma il primo è un dizionario e il secondo è un insieme.
+
+## Oggetti e metodi
+
+Nella bozza compare poi una prima introduzione al concetto di **oggetto**. In Python un oggetto è un'entità che contiene dati e mette a disposizione certe operazioni. Queste operazioni si chiamano **metodi**. fileciteturn9file0
+
+Forma generale:
 
 ```python
-dati = {'nome': 'Luca'}
-print(dati.keys())
+oggetto.nome_metodo(argomenti)
 ```
 
-In tutti questi casi il metodo dipende dal tipo dell’oggetto.
+Questa sintassi indica che il metodo è legato a quel particolare oggetto.
 
-## Funzioni e metodi
+### Esempi con stringhe e contenitori
 
-È importante distinguere tra:
-
-- **funzioni generali**, scritte come `nome_funzione(argomenti)`
-- **metodi**, scritti come `oggetto.metodo(argomenti)`
-
-Esempi di funzioni:
+Per spezzare una stringa in caratteri possiamo usare `list()` oppure `set()`:
 
 ```python
-len('ciao')
-type([1, 2, 3])
-print('salve')
+print(list('ifjbwie'))
+print(set('sdfvigub'))
 ```
 
-Esempi di metodi:
+Output possibile:
 
 ```python
-'ciao'.upper()
-'ciao'.find('a')
-[1, 2].append(3)
+['i', 'f', 'j', 'b', 'w', 'i', 'e']
+{'g', 'f', 'u', 'v', 'i', 'b', 'd', 's'}
 ```
 
-### Differenza concettuale
+Con `list()` manteniamo l'ordine e i duplicati. Con `set()` invece:
 
-Una funzione è chiamata dall’esterno e riceve l’oggetto come argomento.
-Un metodo, invece, è un’operazione messa a disposizione direttamente da quel tipo di oggetto.
+- l'ordine non è garantito;
+- gli eventuali duplicati vengono eliminati.
 
-Per esempio:
+Altro esempio:
 
 ```python
-testo = 'Oggi sono Un po StaNco'
-print(testo.lower())
+S = 'Prova Dimostrativa'
+print(S.islower())
 ```
 
-Qui `lower()` è un metodo delle stringhe, quindi si richiama sull’oggetto stringa stesso.
-
-## Alcuni metodi comuni
-
-### Metodi delle stringhe
+Output:
 
 ```python
-testo = 'Ciao Mondo'
-print(testo.lower())
-print(testo.upper())
-print(testo.find('M'))
-print(testo.split())
+False
 ```
 
-### Metodi delle liste
+Il metodo `islower()` controlla se tutti i caratteri alfabetici della stringa sono minuscoli.
+
+Esempio con `find()`:
 
 ```python
-numeri = [1, 2, 3]
-numeri.append(4)
-print(numeri)
-
-numeri.remove(2)
-print(numeri)
+S = 'Prova Dimostrativa'
+print(S.find('Prova'), S.find('gnomo'))
 ```
 
-### Metodi dei dizionari
+Output:
 
 ```python
-persona = {'nome': 'Anna', 'eta': 21}
-print(persona.keys())
-print(persona.values())
-print(persona.items())
+0 -1
 ```
 
-### Metodi degli insiemi
+Quindi:
+
+- `0` è la posizione iniziale della sottostringa `'Prova'`;
+- `-1` indica che `'gnomo'` non compare nella stringa.
+
+## Metodi dei contenitori
+
+Dopo l'introduzione ai metodi, la bozza elenca le principali operazioni sui contenitori fondamentali di Python. Le raccogliamo qui in modo più ordinato e con spiegazioni essenziali. fileciteturn9file4turn9file5
+
+---
+
+## Operazioni sulle liste (`list`)
+
+Le liste sono contenitori:
+
+- ordinati;
+- modificabili;
+- in grado di contenere anche elementi di tipo diverso.
+
+### Operazioni fondamentali
 
 ```python
-insieme = {1, 2}
-insieme.add(3)
-print(insieme)
+L[indice]              # lettura dell'elemento all'indice
+L[indice] = espressione
+elemento in L
+L1 + L2
+L1 * n
 ```
 
-## Osservazioni finali
+Significato:
 
-In questa lezione abbiamo consolidato alcune idee molto utili per programmare meglio:
+- `L[indice]` legge il valore nella posizione indicata;
+- `L[indice] = espressione` sostituisce il valore in quella posizione;
+- `elemento in L` verifica la presenza di un elemento;
+- `L1 + L2` crea una nuova lista concatenando due liste;
+- `L1 * n` crea una nuova lista ripetendo più volte la lista iniziale.
 
-- un contenitore può essere percorso direttamente oppure tramite indice
-- `enumerate()` è spesso il modo più comodo per ottenere posizione ed elemento insieme
-- modificare una lista mentre la si sta scorrendo può produrre errori o comportamenti inattesi
-- i contenitori vuoti valgono `False`, quelli non vuoti valgono `True`
-- `{}` è un dizionario vuoto, mentre un insieme vuoto si scrive `set()`
-- in Python gli oggetti mettono a disposizione metodi specifici
-- una funzione e un metodo non si richiamano con la stessa sintassi
+### `append()`
 
-## Sintesi
+```python
+L = [1, 2, 3]
+L.append(4)
+print(L)
+```
 
-Questa lezione rafforza il modo in cui leggiamo e manipoliamo i dati in Python:
+Output:
 
-- accesso con indice e scansione controllata
-- uso corretto di `enumerate()`
-- attenzione alle modifiche in-place durante i cicli
-- uso dei contenitori come valori booleani
-- comprensione del modello a oggetti e dei metodi
+```python
+[1, 2, 3, 4]
+```
 
-Sono concetti fondamentali, perché ricompaiono continuamente in esercizi, programmi reali e librerie del linguaggio.
+Aggiunge un elemento **alla fine** della lista.
+
+### `pop()`
+
+```python
+L = [1, 2, 3, 4, 5]
+print(L.pop(2))
+print(L)
+```
+
+Output:
+
+```python
+3
+[1, 2, 4, 5]
+```
+
+`pop(indice)`:
+
+- rimuove l'elemento nella posizione indicata;
+- restituisce il valore rimosso.
+
+Se non si specifica l'indice:
+
+```python
+L.pop()
+```
+
+viene rimosso e restituito l'ultimo elemento.
+
+### `insert()`
+
+```python
+L = [1, 2, 4, 5]
+
+L.insert(2, 4)
+print(L)
+
+L.insert(30, 44)
+print(L)
+
+L.insert(-30, 444)
+print(L)
+```
+
+Output:
+
+```python
+[1, 2, 4, 4, 5]
+[1, 2, 4, 4, 5, 44]
+[444, 1, 2, 4, 4, 5, 44]
+```
+
+Quindi:
+
+- se l'indice è valido, l'elemento viene inserito in quella posizione;
+- se l'indice è troppo grande, viene inserito in fondo;
+- se l'indice negativo è troppo piccolo, viene inserito all'inizio.
+
+### Assegnamento tramite slice
+
+Nella bozza si osserva che questo meccanismo è definito sulle liste. In effetti possiamo sostituire una porzione della lista con un altro contenitore compatibile. fileciteturn9file4
+
+Forma generale:
+
+```python
+lista[inizio:fine] = contenitore
+lista[inizio:fine:incremento] = contenitore
+```
+
+Esempio:
+
+```python
+XXX = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+XXX[2:8:1] = list('abcdef')
+print(XXX)
+```
+
+Output:
+
+```python
+[1, 2, 'a', 'b', 'c', 'd', 'e', 'f', 9, 10]
+```
+
+Questo permette anche di eliminare una porzione della lista:
+
+```python
+L = [10, 20, 30, 40, 50]
+L[1:4] = []
+print(L)
+```
+
+Output:
+
+```python
+[10, 50]
+```
+
+### Altri metodi utili delle liste
+
+```python
+L.pop()
+L.remove(elemento)
+L.index(elemento)
+L.count(elemento)
+L.reverse()
+L.sort()
+```
+
+Significato:
+
+- `L.pop()` rimuove e restituisce l'ultimo elemento;
+- `L.remove(elemento)` rimuove il primo elemento uguale al valore dato;
+- `L.index(elemento)` trova il primo indice in cui compare l'elemento;
+- `L.count(elemento)` conta quante volte compare;
+- `L.reverse()` inverte l'ordine della lista;
+- `L.sort()` ordina direttamente la lista.
+
+### Metodi distruttivi
+
+La bozza usa spesso il termine **distruttivo**. In questo contesto significa che il metodo **modifica direttamente la struttura dati originale**. fileciteturn9file4
+
+Esempio:
+
+```python
+L = [4, 1, 3, 2]
+L.sort()
+print(L)
+```
+
+Output:
+
+```python
+[1, 2, 3, 4]
+```
+
+La lista originale è stata cambiata.
+
+---
+
+## Operazioni sulle tuple (`tuple`)
+
+Le tuple sono contenitori:
+
+- ordinati;
+- non modificabili.
+
+Operazioni principali:
+
+```python
+T[1]
+elemento in T
+T1 + T2
+T * N
+T.index(elemento)
+T.count(elemento)
+```
+
+Significato:
+
+- `T[1]` legge l'elemento nella posizione indicata;
+- `elemento in T` controlla la presenza;
+- `T1 + T2` crea una nuova tupla concatenata;
+- `T * N` crea una nuova tupla con ripetizione;
+- `T.index(elemento)` restituisce la posizione del primo elemento uguale;
+- `T.count(elemento)` conta quante volte compare.
+
+Esempio:
+
+```python
+T = (10, 20, 10, 30)
+print(T.index(20))
+print(T.count(10))
+```
+
+Output:
+
+```python
+1
+2
+```
+
+### Importante: le tuple sono immutabili
+
+Nella bozza è ricordato correttamente che assegnare un nuovo valore in una tupla dà errore. fileciteturn9file4
+
+```python
+T = (1, 2, 3)
+T[1] = 99
+```
+
+Questo produce un errore, perché una tupla non può essere modificata.
+
+Anche lo slicing su una tupla non consente modifiche: restituisce una nuova tupla o una porzione leggibile, ma non assegnabile.
+
+---
+
+## Operazioni sugli insiemi (`set`)
+
+Gli insiemi sono contenitori:
+
+- modificabili;
+- non ordinati;
+- senza duplicati.
+
+La bozza insiste giustamente sul fatto che negli insiemi non esistono né ordine né doppioni. fileciteturn9file5
+
+### Operazioni insiemistiche
+
+```python
+elemento in S
+S1 | S2
+S1 & S2
+S1 - S2
+S1 ^ S2
+```
+
+Significato:
+
+- `elemento in S` verifica la presenza;
+- `S1 | S2` oppure `S1.union(S2)` calcola l'unione;
+- `S1 & S2` oppure `S1.intersection(S2)` calcola l'intersezione;
+- `S1 - S2` oppure `S1.difference(S2)` prende gli elementi di `S1` non presenti in `S2`;
+- `S1 ^ S2` oppure `S1.symmetric_difference(S2)` prende gli elementi non in comune.
+
+Esistono anche gli assegnamenti potenziati:
+
+```python
+|=   &=   -=   ^=
+```
+
+### Metodi principali degli insiemi
+
+```python
+S.pop()
+S.add(elemento)
+S.remove(elemento)
+S1.update(S2)
+```
+
+Significato:
+
+- `S.pop()` rimuove e restituisce un elemento arbitrario dell'insieme;
+- `S.add(elemento)` aggiunge un elemento;
+- `S.remove(elemento)` rimuove un elemento e genera errore se non esiste;
+- `S1.update(S2)` modifica `S1` aggiungendo gli elementi di `S2`.
+
+La bozza parla di elemento “a caso” per `pop()`: didatticamente l'idea è chiara, ma la formulazione tecnica migliore è “elemento arbitrario”, perché in un insieme non esiste un ordine da rispettare. fileciteturn9file5
+
+Esempio:
+
+```python
+S1 = {1, 2, 3}
+S2 = {3, 4, 5}
+
+print(S1 | S2)
+print(S1 & S2)
+print(S1 - S2)
+print(S1 ^ S2)
+```
+
+Output possibile:
+
+```python
+{1, 2, 3, 4, 5}
+{3}
+{1, 2}
+{1, 2, 4, 5}
+```
+
+---
+
+## Operazioni sui dizionari (`dict`)
+
+I dizionari associano **chiavi** a **valori**. Come osserva la bozza, si comportano in parte come le liste, ma al posto dell'indice numerico si usano le chiavi. fileciteturn9file5
+
+### Operazioni fondamentali
+
+```python
+key in D
+D[key]
+D.keys()
+D.values()
+D.items()
+D.popitem()
+D1 | D2
+D1.update(D2)
+```
+
+Significato:
+
+- `key in D` verifica se la chiave è presente;
+- `D[key]` restituisce il valore associato alla chiave;
+- `D.keys()` restituisce una vista iterabile delle chiavi;
+- `D.values()` restituisce una vista iterabile dei valori;
+- `D.items()` restituisce una vista iterabile delle coppie `(chiave, valore)`;
+- `D.popitem()` rimuove e restituisce l'ultima coppia inserita;
+- `D1 | D2` crea un nuovo dizionario combinando le coppie dei due dizionari;
+- `D1.update(D2)` modifica `D1` aggiungendo o aggiornando le coppie di `D2`.
+
+Nella bozza `keys()`, `values()` e `items()` sono descritti come generatori o elenchi. Per essere più precisi, oggi è meglio parlarne come **viste** del dizionario: si possono iterare e usare molto comodamente nei cicli. fileciteturn9file5
+
+### Metodi utili
+
+```python
+D.get(key, default)
+D.setdefault(key, default)
+D.pop(key, default)
+D.fromkeys(keys, value)
+```
+
+#### `get()`
+
+```python
+D = {'a': 10, 'b': 20}
+print(D.get('a', 0))
+print(D.get('z', 0))
+```
+
+Output:
+
+```python
+10
+0
+```
+
+Se la chiave esiste, restituisce il valore associato. Altrimenti restituisce il valore di default.
+
+#### `setdefault()`
+
+```python
+D = {'a': 10}
+print(D.setdefault('a', 99))
+print(D.setdefault('b', 99))
+print(D)
+```
+
+Output:
+
+```python
+10
+99
+{'a': 10, 'b': 99}
+```
+
+Se la chiave esiste, restituisce il valore già presente. Se non esiste, la inserisce con il valore di default.
+
+#### `pop()`
+
+```python
+D = {'x': 1, 'y': 2}
+print(D.pop('x', 0))
+print(D.pop('z', 0))
+print(D)
+```
+
+Output:
+
+```python
+1
+0
+{'y': 2}
+```
+
+#### `fromkeys()`
+
+```python
+chiavi = ['nome', 'cognome', 'eta']
+D = dict.fromkeys(chiavi, None)
+print(D)
+```
+
+Output:
+
+```python
+{'nome': None, 'cognome': None, 'eta': None}
+```
+
+Crea un nuovo dizionario con le chiavi indicate, tutte inizialmente associate allo stesso valore.
+
+## Riepilogo
+
+In questa lezione abbiamo visto che:
+
+- possiamo iterare un contenitore anche tramite indice;
+- `enumerate()` è un modo molto comodo per ottenere insieme indice ed elemento;
+- modificare una lista durante l'iterazione può causare salti di elementi ed errori;
+- i contenitori vuoti valgono `False`, quelli non vuoti valgono `True`;
+- gli oggetti espongono metodi, che si invocano con la sintassi `oggetto.metodo(...)`;
+- liste, tuple, insiemi e dizionari hanno operazioni proprie che bisogna distinguere bene.
+
+Questo materiale prepara al lavoro pratico sugli esercizi, dove i contenitori non vengono più trattati solo come esempi teorici, ma come veri strumenti per costruire piccoli programmi. fileciteturn9file0turn9file1
