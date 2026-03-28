@@ -122,6 +122,9 @@ print(nuova_lista)
 # - la tabella completa dei nomi e dei voti
 
 # Scrivi qui sotto:
+tabella = {}
+
+
 
 
 # Esercizio 3
