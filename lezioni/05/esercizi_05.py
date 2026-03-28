@@ -227,11 +227,12 @@ print(cerca_cifra_con_stringa(12))
 # Esercizio 13
 # Cercare il numero che contiene la cifra
 # Definisci una funzione numero_e_posizione(n)
-# che scorra i numeri da 1 in poi, sottragga le loro cifre da n
-# e restituisca il numero in cui cade la N-esima cifra e la posizione dentro quel numero.
-# Per contare le cifre puoi usare len(str(numero)).
+# che consideri la sequenza "12345678910111213..."
+# e determini:
+# - in quale numero si trova la N-esima cifra
+# - in quale posizione si trova quella cifra all'interno di quel numero
 # Provala con n = 15.
-
+#
 # Scrivi qui sotto:
 
 
